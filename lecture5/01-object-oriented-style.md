@@ -1,306 +1,419 @@
 # Object-Oriented Style
 
 ## Introduction to Object-Oriented Architecture
-Object-Oriented (OO) architecture organizes software around objects that encapsulate both data and behavior. This style is based on the principles of object-oriented programming and provides a natural way to model real-world entities and their interactions.
+Object-Oriented (OO) architecture is one of the most widely used architectural styles in software development. It organizes software around objects that contain both data and behavior, promoting encapsulation, inheritance, and polymorphism.
 
-## Core Principles
+## Core Principles of Object-Oriented Architecture
 
 ### 1. Encapsulation
-- **Definition**: Bundling data and methods that operate on that data within a single unit (object)
-- **Benefits**: 
-  - Information hiding
-  - Data protection
-  - Modularity
-  - Reduced coupling
+**Definition**: Bundling data and methods that operate on that data within a single unit (object).
 
-**Example: Bank Account Object**
+**Encapsulation Diagram:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Bank Account Object                      │
-├─────────────────────────────────────────────────────────────┤
-│                     Private Data                            │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ accountNumber: String                                   │ │
-│ │ balance: Double                                         │ │
-│ │ owner: String                                           │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                     Public Methods                          │ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ +deposit(amount: Double): void                          │ │
-│ │ +withdraw(amount: Double): boolean                      │ │
-│ │ +getBalance(): Double                                   │ │
-│ │ +transfer(to: Account, amount: Double): boolean        │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+│                Object Encapsulation                        │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Public        │   Private       │   Protected             │
+│   Interface     │   Implementation│   Interface             │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Public       │ │ │Private      │ │ │Protected            │ │
+│ │Methods      │ │ │Data         │ │ │Methods              │ │
+│ │Public       │ │ │Private      │ │ │Protected            │ │
+│ │Properties   │ │ │Methods      │ │ │Data                 │ │
+│ │External     │ │ │Internal     │ │ │Inherited            │ │
+│ │Access       │ │ │Logic        │ │ │Access               │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
 ### 2. Inheritance
-- **Definition**: Mechanism that allows a class to inherit properties and methods from another class
-- **Benefits**:
-  - Code reuse
-  - Polymorphism
-  - Hierarchical organization
-  - Extensibility
+**Definition**: Mechanism that allows a class to inherit properties and methods from another class.
 
-**Diagram: Inheritance Hierarchy**
-```mermaid
-classDiagram
-    class Vehicle {
-        +brand: String
-        +model: String
-        +startEngine() void
-        +stopEngine() void
-    }
-    class Car {
-        +numDoors: int
-        +drive() void
-    }
-    class Motorcycle {
-        +hasSidecar: boolean
-        +ride() void
-    }
-    class Truck {
-        +cargoCapacity: double
-        +loadCargo() void
-    }
-    Vehicle <|-- Car
-    Vehicle <|-- Motorcycle
-    Vehicle <|-- Truck
+**Inheritance Hierarchy:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Inheritance Hierarchy                       │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Base Class    │   Derived       │   Specialized           │
+│   (Parent)      │   Classes       │   Classes               │
+│                 │   (Children)    │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Vehicle      │ │ │Car          │ │ │SportsCar            │ │
+│ │- brand      │ │ │- numDoors   │ │ │- topSpeed           │ │
+│ │- model      │ │ │- engineType │ │ │- acceleration       │ │
+│ │- year       │ │ │             │ │ │                     │ │
+│ │+ start()    │ │ │+ drive()    │ │ │+ race()             │ │
+│ │+ stop()     │ │ │+ park()     │ │ │+ drift()            │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
 ### 3. Polymorphism
-- **Definition**: Ability to present the same interface for different underlying forms (data types or classes)
-- **Types**:
-  - **Compile-time polymorphism**: Method overloading
-  - **Runtime polymorphism**: Method overriding
+**Definition**: Ability to present the same interface for different underlying forms (data types or classes).
 
-**Example: Polymorphic Payment Processing**
+**Polymorphism Types:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                Payment Processing System                    │
-├─────────────────────────────────────────────────────────────┤
-│   Payment Interface                                         │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ +processPayment(amount: double): boolean               │ │
-│ │ +getPaymentDetails(): PaymentDetails                   │ │
-│ │ +getStatus(): NotificationStatus                        │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                                                             │
-│   Concrete Implementations                                  │
-│ ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
-│ │CreditCard   │ │PayPal       │ │BankTransfer             │ │
-│ │Payment      │ │Payment      │ │Payment                  │ │
-│ │             │ │             │ │                         │ │
-│ │+process     │ │+process     │ │+process                 │ │
-│ │+validate    │ │+authenticate│ │+verifyAccount           │ │
-│ └─────────────┘ └─────────────┘ └─────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+│                Polymorphism Types                          │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Compile-time  │   Runtime       │   Interface             │
+│   Polymorphism  │   Polymorphism  │   Polymorphism          │
+│   (Overloading) │   (Overriding)  │                         │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Method       │ │ │Method       │ │ │Interface            │ │
+│ │Overloading  │ │ │Overriding   │ │ │Implementation       │ │
+│ │Same Name    │ │ │Same Name    │ │ │Multiple Classes     │ │
+│ │Different    │ │ │Same         │ │ │Same Interface       │ │
+│ │Parameters   │ │ │Signature    │ │ │Different            │ │
+│ │Compile-time │ │ │Runtime      │ │ │Resolution           │ │
+│ │Resolution   │ │ │Resolution   │ │ │                     │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
 ## Object-Oriented Architecture Patterns
 
-### 1. Model-View-Controller (MVC)
-- **Purpose**: Separates application logic from user interface
-- **Components**:
-  - **Model**: Data and business logic
-  - **View**: User interface
-  - **Controller**: Handles user input and coordinates between Model and View
+### 1. Class-Based Architecture
+**Description**: Organizes code into classes that represent real-world entities or concepts.
 
-**Diagram: MVC Pattern**
-```mermaid
-graph TD
-    A[User] --> B[View]
-    B --> C[Controller]
-    C --> D[Model]
-    D --> E[Database]
-    C --> B
-    D --> C
-```
-
-**Example: E-commerce MVC**
+**Class-Based Structure:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    E-commerce MVC                          │
+│                Class-Based Architecture                    │
 ├─────────────────┬─────────────────┬─────────────────────────┤
-│      View       │   Controller    │        Model            │
+│   Entity        │   Service       │   Utility               │
+│   Classes       │   Classes       │   Classes               │
+│                 │                 │                         │
 │                 │                 │                         │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
-│ │Product List │ │ │Product      │ │ │Product              │ │
-│ │Shopping Cart│ │ │Controller   │ │ │Order                │ │
-│ │Checkout Form│ │ │Order        │ │ │User                 │ │
-│ └─────────────┘ │ │Controller   │ │ │Payment              │ │
-│                 │ └─────────────┘ │ └─────────────────────┘ │
+│ │User         │ │ │UserService  │ │ │StringUtils          │ │
+│ │Product      │ │ │OrderService │ │ │DateUtils            │ │
+│ │Order        │ │ │PaymentService│ │ │ValidationUtils      │ │
+│ │Customer     │ │ │EmailService │ │ │FileUtils            │ │
+│ │Employee     │ │ │LogService   │ │ │MathUtils            │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-### 2. Repository Pattern
-- **Purpose**: Abstracts data persistence logic
-- **Benefits**:
-  - Separation of concerns
-  - Testability
-  - Flexibility in data access
+### 2. Component-Based Architecture
+**Description**: Organizes code into reusable components that encapsulate related functionality.
 
-**Example: User Repository**
+**Component Structure:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Repository Pattern                       │
-├─────────────────────────────────────────────────────────────┤
-│   IUserRepository Interface                                 │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ +findById(id: String): User                            │ │
-│ │ +save(user: User): void                                │ │
-│ │ +delete(id: String): void                              │ │
-│ │ +findAll(): List<User>                                 │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                                                             │
-│   Concrete Implementations                                  │
-│ ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
-│ │Database     │ │File         │ │Mock                     │ │
-│ │UserRepo     │ │UserRepo     │ │UserRepo                 │ │
-│ │             │ │             │ │(Testing)                │ │
-│ │+SQL queries │ │+File I/O    │ │+In-memory               │ │
-│ └─────────────┘ └─────────────┘ └─────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+│                Component-Based Architecture                │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   UI            │   Business      │   Data                  │
+│   Components    │   Components    │   Components            │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Button       │ │ │OrderManager │ │ │DatabaseConnector    │ │
+│ │Form         │ │ │UserManager  │ │ │FileManager          │ │
+│ │Table        │ │ │PaymentProcessor│ │CacheManager         │ │
+│ │Chart        │ │ │EmailSender  │ │ │LogManager           │ │
+│ │Menu         │ │ │ReportGenerator│ │ │ConfigManager       │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
-## Advantages of Object-Oriented Architecture
+## Object-Oriented Design Principles
 
-### 1. Natural Modeling
-- Objects correspond to real-world entities
-- Intuitive for developers and stakeholders
-- Easy to understand and maintain
+### 1. Single Responsibility Principle (SRP)
+**Definition**: A class should have only one reason to change.
+
+**SRP Example:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Single Responsibility Principle             │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   User          │   Email         │   Logger                │
+│   Management    │   Service       │   Service               │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │User         │ │ │EmailSender  │ │ │Logger               │ │
+│ │- create()   │ │ │- send()     │ │ │- log()              │ │
+│ │- update()   │ │ │- validate() │ │ │- error()            │ │
+│ │- delete()   │ │ │- format()   │ │ │- info()             │ │
+│ │- find()     │ │ │- queue()    │ │ │- debug()            │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+### 2. Open/Closed Principle (OCP)
+**Definition**: Software entities should be open for extension but closed for modification.
+
+**OCP Example:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Open/Closed Principle                       │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Base          │   Extension     │   Extension             │
+│   Class         │   Point 1       │   Point 2               │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │PaymentProcessor│ │ │CreditCard  │ │ │PayPal              │ │
+│ │+ process()  │ │ │Payment      │ │ │Payment              │ │
+│ │(abstract)   │ │ │+ process()  │ │ │+ process()          │ │
+│ │             │ │ │+ validate() │ │ │+ authorize()        │ │
+│ │             │ │ │+ charge()   │ │ │+ transfer()         │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+### 3. Liskov Substitution Principle (LSP)
+**Definition**: Objects of a superclass should be replaceable with objects of a subclass without breaking the application.
+
+**LSP Example:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Liskov Substitution Principle               │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Base          │   Valid         │   Invalid               │
+│   Class         │   Substitution  │   Substitution          │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Bird         │ │ │Sparrow      │ │ │Penguin              │ │
+│ │+ fly()      │ │ │+ fly()      │ │ │+ fly()              │ │
+│ │+ eat()      │ │ │+ eat()      │ │ │+ eat()              │ │
+│ │+ sleep()    │ │ │+ sleep()    │ │ │+ sleep()            │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+│                 │                 │                         │
+│                 │ ✅ Valid        │ ❌ Breaks LSP           │
+│                 │ Substitution    │ (Penguin can't fly)     │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+## Object-Oriented Architecture Benefits
+
+### 1. Maintainability
+- **Modular Design**: Changes are localized to specific classes
+- **Clear Structure**: Easy to understand and navigate
+- **Reduced Coupling**: Classes are loosely coupled
 
 ### 2. Reusability
-- Inheritance promotes code reuse
-- Components can be reused across projects
-- Reduces development time and cost
+- **Component Reuse**: Classes can be reused in different contexts
+- **Inheritance**: Common functionality can be inherited
+- **Composition**: Objects can be composed of other objects
 
-### 3. Maintainability
-- Encapsulation reduces coupling
-- Changes are localized to specific objects
-- Easier to modify and extend
+### 3. Extensibility
+- **Easy Extension**: New functionality can be added through inheritance
+- **Polymorphism**: New implementations can be added without changing existing code
+- **Interface Implementation**: Multiple implementations of the same interface
 
-### 4. Extensibility
-- New functionality can be added through inheritance
-- Existing code remains unchanged
-- Supports open-closed principle
+### 4. Testability
+- **Unit Testing**: Individual classes can be tested in isolation
+- **Mocking**: Dependencies can be easily mocked
+- **Clear Boundaries**: Clear interfaces make testing easier
 
-## Disadvantages of Object-Oriented Architecture
+## Object-Oriented Architecture Challenges
 
 ### 1. Complexity
-- Can lead to complex inheritance hierarchies
-- Over-abstraction can make code hard to understand
-- Performance overhead from object creation and method calls
+- **Deep Inheritance**: Can lead to complex inheritance hierarchies
+- **Object Relationships**: Complex object relationships can be difficult to manage
+- **Memory Management**: Object lifecycle management can be complex
 
-### 2. Design Challenges
-- Difficult to get inheritance hierarchies right
-- Can lead to tight coupling if not designed properly
-- Requires careful consideration of object relationships
+### 2. Performance
+- **Method Calls**: Virtual method calls can have overhead
+- **Memory Usage**: Objects can consume more memory than procedural code
+- **Garbage Collection**: Automatic memory management can impact performance
 
-### 3. Performance Issues
-- Object creation and destruction overhead
-- Method call indirection
-- Memory usage for object metadata
+### 3. Design Issues
+- **God Objects**: Classes that do too much
+- **Tight Coupling**: Classes that are too dependent on each other
+- **Inheritance Abuse**: Using inheritance when composition would be better
 
-## Best Practices
+## Example: Banking System Architecture
 
-### 1. Design Principles
-- **Single Responsibility Principle**: Each class should have one reason to change
-- **Open-Closed Principle**: Open for extension, closed for modification
-- **Liskov Substitution Principle**: Subtypes should be substitutable for their base types
-- **Interface Segregation Principle**: Clients should not depend on interfaces they don't use
-- **Dependency Inversion Principle**: Depend on abstractions, not concretions
+### System Overview
+A banking system using object-oriented architecture organizes functionality around domain objects.
 
-### 2. Class Design
-- Keep classes focused and cohesive
-- Minimize coupling between classes
-- Use composition over inheritance when possible
-- Design for change and extension
+**Banking System Architecture:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Banking System OO Architecture              │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Domain        │   Service       │   Infrastructure        │
+│   Objects       │   Layer         │   Layer                 │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Account      │ │ │AccountService│ │ │DatabaseConnector    │ │
+│ │Customer     │ │ │CustomerService│ │ │EmailService        │ │
+│ │Transaction  │ │ │TransactionService│ │LogService          │ │
+│ │Bank         │ │ │BankService  │ │ │SecurityService      │ │
+│ │Branch       │ │ │ReportService│ │ │NotificationService  │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+### Domain Object Relationships
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Domain Object Relationships                 │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Customer      │   Account       │   Transaction           │
+│   Object        │   Object        │   Object                │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Customer     │ │ │Account      │ │ │Transaction          │ │
+│ │- id         │ │ │- number     │ │ │- id                 │ │
+│ │- name       │ │ │- type       │ │ │- amount             │ │
+│ │- email      │ │ │- balance    │ │ │- type               │ │
+│ │- phone      │ │ │- customer   │ │ │- date               │ │
+│ │+ accounts[] │ │ │+ transactions[]│ │- fromAccount        │ │
+│ └─────────────┘ │ └─────────────┘ │ │- toAccount          │ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
 
 ## Practice Questions
 
 ### Question 1: Object-Oriented Design
-**Question:** Design an object-oriented architecture for a library management system. Create a class diagram showing the main classes and their relationships.
+**Question:** Design an object-oriented architecture for a library management system. Identify the main classes and their relationships.
 
 **Solution:**
+**Library Management System Architecture:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                Library Management System                    │
+│                Library Management System                   │
 ├─────────────────┬─────────────────┬─────────────────────────┤
-│     User        │     Book        │       Loan              │
-│   Management    │   Management    │     Management           │
+│   Domain        │   Service       │   Infrastructure        │
+│   Objects       │   Layer         │   Layer                 │
+│                 │                 │                         │
 │                 │                 │                         │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
-│ │User         │ │ │Book         │ │ │Loan                 │ │
-│ │Member       │ │ │Author       │ │ │Fine                 │ │
-│ │Librarian    │ │ │Category     │ │ │Reservation         │ │
-│ │Admin        │ │ │ISBN         │ │ │Return              │ │
+│ │Book         │ │ │BookService  │ │ │DatabaseConnector    │ │
+│ │Member       │ │ │MemberService│ │ │EmailService         │ │
+│ │Loan         │ │ │LoanService  │ │ │NotificationService  │ │
+│ │Author       │ │ │ReportService│ │ │PaymentService       │ │
+│ │Category     │ │ │SearchService│ │ │LogService           │ │
 │ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
 **Class Relationships:**
-- User has many Loans
-- Book has many Loans
-- Loan belongs to User and Book
-- Book has one Author
-- Book belongs to one Category
-
-### Question 2: Encapsulation and Information Hiding
-**Question:** Explain how encapsulation provides information hiding in object-oriented design. Provide an example.
-
-**Solution:**
-**Encapsulation and Information Hiding:**
-- Encapsulation bundles data and methods together
-- Private data is hidden from external access
-- Public methods provide controlled access to data
-- Implementation details are hidden from clients
-
-**Example:**
-```java
-public class BankAccount {
-    private double balance;  // Private data - hidden from external access
-    private String accountNumber;
-    
-    public void deposit(double amount) {  // Public method - controlled access
-        if (amount > 0) {
-            balance += amount;
-        }
-    }
-    
-    public double getBalance() {  // Public method - read-only access
-        return balance;
-    }
-}
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Member    │───▶│    Loan     │◄───│    Book     │
+│             │    │             │    │             │
+│ - id        │    │ - id        │    │ - id        │
+│ - name      │    │ - date      │    │ - title     │
+│ - email     │    │ - dueDate   │    │ - author    │
+│ - phone     │    │ - returned  │    │ - isbn      │
+│ + loans[]   │    │ - member    │    │ + loans[]   │
+│             │    │ - book      │    │             │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Author    │    │  Category   │    │   Payment   │
+│             │    │             │    │             │
+│ - id        │    │ - id        │    │ - id        │
+│ - name      │    │ - name      │    │ - amount    │
+│ - bio       │    │ - description│   │ - date      │
+│ + books[]   │    │ + books[]   │    │ - member    │
+└─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-### Question 3: Polymorphism Application
-**Question:** Design a polymorphic system for handling different types of notifications (email, SMS, push notification). Show how polymorphism enables extensibility.
+### Question 2: Design Principles
+**Question:** Explain how the Single Responsibility Principle applies to a user management system. Provide examples of good and bad class designs.
 
 **Solution:**
+**Good Design (Following SRP):**
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                Notification System                          │
+│                Good SRP Design                             │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   User          │   Email         │   Logger                │
+│   Management    │   Service       │   Service               │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │UserManager  │ │ │EmailService │ │ │Logger               │ │
+│ │- create()   │ │ │- send()     │ │ │- log()              │ │
+│ │- update()   │ │ │- validate() │ │ │- error()            │ │
+│ │- delete()   │ │ │- format()   │ │ │- info()             │ │
+│ │- find()     │ │ │- queue()    │ │ │- debug()            │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+**Bad Design (Violating SRP):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Bad SRP Design                              │
 ├─────────────────────────────────────────────────────────────┤
-│   Notification Interface                                    │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ +send(message: String, recipient: String): boolean     │ │
-│ │ +getStatus(): NotificationStatus                        │ │
-│ └─────────────────────────────────────────────────────────┘ │
+│   UserManager (God Object)                                 │
 │                                                             │
-│   Concrete Implementations                                  │
-│ ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────┐ │
-│ │Email        │ │SMS          │ │Push                      │ │
-│ │Notification │ │Notification │ │Notification             │ │
-│ │             │ │             │ │                         │ │
-│ │+SMTP config │ │+SMS gateway │ │+Mobile device           │ │
-│ │+HTML format │ │+Text format │ │+App integration         │ │
-│ └─────────────┘ └─────────────┘ └─────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │UserManager                                              │ │
+│ │- create()                                               │ │
+│ │- update()                                               │ │
+│ │- delete()                                               │ │
+│ │- sendEmail()                                            │ │
+│ │- validateEmail()                                        │ │
+│ │- logActivity()                                          │ │
+│ │- generateReport()                                       │ │
+│ │- backupData()                                           │ │
+│ │- sendNotification()                                     │ │
+│ └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Extensibility Benefits:**
-- New notification types can be added without changing existing code
-- All notifications can be handled uniformly through the interface
-- Testing can be done with mock implementations
-- Runtime selection of notification type based on user preferences 
+### Question 3: Inheritance vs Composition
+**Question:** Compare inheritance and composition in object-oriented design. When would you choose each approach?
+
+**Solution:**
+**Inheritance (Is-A Relationship):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Inheritance Example                         │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Animal        │   Dog           │   Cat                   │
+│   (Base Class)  │   (Inherits)    │   (Inherits)            │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Animal       │ │ │Dog          │ │ │Cat                  │ │
+│ │- name       │ │ │- breed      │ │ │- color              │ │
+│ │- age        │ │ │+ bark()     │ │ │+ meow()             │ │
+│ │+ eat()      │ │ │+ fetch()    │ │ │+ climb()            │ │
+│ │+ sleep()    │ │ │             │ │ │                     │ │
+│ │+ move()     │ │ │             │ │ │                     │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+**Composition (Has-A Relationship):**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Composition Example                         │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Car           │   Engine        │   Transmission          │
+│   (Container)   │   (Component)   │   (Component)           │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │Car          │ │ │Engine       │ │ │Transmission         │ │
+│ │- make       │ │ │- type       │ │ │- type               │ │
+│ │- model      │ │ │- power      │ │ │- gears              │ │
+│ │- engine     │ │ │+ start()    │ │ │+ shift()            │ │
+│ │- transmission│ │ │+ stop()     │ │ │+ reverse()          │ │
+│ │+ drive()    │ │ │+ accelerate()│ │ │                     │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
+```
+
+**Selection Criteria:**
+- **Inheritance**: Use when there's a clear "is-a" relationship and shared behavior
+- **Composition**: Use when there's a "has-a" relationship or when you want more flexibility
+- **Favor Composition**: Generally preferred over inheritance for better flexibility 

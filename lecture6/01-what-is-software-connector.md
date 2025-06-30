@@ -164,113 +164,84 @@ An e-commerce system uses various connectors to enable communication between com
 ### Connector Examples
 
 #### 1. HTTP Connector
-```java
-public class HttpConnector {
-    private final HttpClient httpClient;
-    private final String baseUrl;
-    
-    public ProductResponse getProduct(String productId) {
-        String url = baseUrl + "/products/" + productId;
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
-            
-        HttpResponse<String> response = httpClient.send(request, 
-            HttpResponse.BodyHandlers.ofString());
-            
-        return parseProductResponse(response.body());
-    }
-    
-    public OrderResponse createOrder(OrderRequest orderRequest) {
-        String url = baseUrl + "/orders";
-        String jsonBody = serializeOrderRequest(orderRequest);
-        
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-            .build();
-            
-        HttpResponse<String> response = httpClient.send(request, 
-            HttpResponse.BodyHandlers.ofString());
-            
-        return parseOrderResponse(response.body());
-    }
-}
+**Purpose**: Handle HTTP requests and responses between web clients and server
+**Characteristics**: 
+- Stateless communication
+- Request-response pattern
+- Standard HTTP methods (GET, POST, PUT, DELETE)
+- Status codes for response handling
+
+**HTTP Connector Flow:**
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Client    │───▶│   HTTP      │───▶│   Server    │
+│   Request   │    │   Connector │    │   Response  │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│URL + Method │    │Protocol     │    │Status Code  │
+│Headers      │    │Translation  │    │Response     │
+│Body Data    │    │Error        │    │Body         │
+└─────────────┘    │Handling     │    └─────────────┘
+                   └─────────────┘
 ```
 
 #### 2. Message Queue Connector
-```java
-public class MessageQueueConnector {
-    private final MessageProducer producer;
-    private final MessageConsumer consumer;
-    private final String queueName;
-    
-    public void sendOrderEvent(OrderEvent event) {
-        String message = serializeOrderEvent(event);
-        producer.send(queueName, message);
-    }
-    
-    public void subscribeToOrderEvents(OrderEventHandler handler) {
-        consumer.subscribe(queueName, message -> {
-            OrderEvent event = deserializeOrderEvent(message);
-            handler.handleOrderEvent(event);
-        });
-    }
-}
+**Purpose**: Enable asynchronous communication between services
+**Characteristics**:
+- Decoupled communication
+- Event-driven architecture
+- Reliable message delivery
+- Load distribution
+
+**Message Queue Flow:**
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│   Producer  │───▶│   Message   │───▶│   Consumer  │
+│   Sends     │    │   Queue     │    │   Receives  │
+│   Message   │    │   Stores    │    │   Message   │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│Message      │    │Queue        │    │Message      │
+│Serialization│    │Persistence  │    │Deserialization│
+│Routing      │    │Load         │    │Processing   │
+│Acknowledgment│   │Balancing    │    │Acknowledgment│
+└─────────────┘    └─────────────┘    └─────────────┘
 ```
 
 #### 3. Database Connector
-```java
-public class DatabaseConnector {
-    private final DataSource dataSource;
-    private final ConnectionPool connectionPool;
-    
-    public Product getProduct(String productId) {
-        try (Connection conn = connectionPool.getConnection()) {
-            String sql = "SELECT * FROM products WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, productId);
-            
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return mapResultSetToProduct(rs);
-            }
-            return null;
-        } catch (SQLException e) {
-            throw new DatabaseException("Failed to get product", e);
-        }
-    }
-    
-    public void saveOrder(Order order) {
-        try (Connection conn = connectionPool.getConnection()) {
-            conn.setAutoCommit(false);
-            
-            // Save order
-            String orderSql = "INSERT INTO orders (id, customer_id, total) VALUES (?, ?, ?)";
-            PreparedStatement orderStmt = conn.prepareStatement(orderSql);
-            orderStmt.setString(1, order.getId());
-            orderStmt.setString(2, order.getCustomerId());
-            orderStmt.setBigDecimal(3, order.getTotal());
-            orderStmt.executeUpdate();
-            
-            // Save order items
-            for (OrderItem item : order.getItems()) {
-                String itemSql = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (?, ?, ?)";
-                PreparedStatement itemStmt = conn.prepareStatement(itemSql);
-                itemStmt.setString(1, order.getId());
-                itemStmt.setString(2, item.getProductId());
-                itemStmt.setInt(3, item.getQuantity());
-                itemStmt.executeUpdate();
-            }
-            
-            conn.commit();
-        } catch (SQLException e) {
-            throw new DatabaseException("Failed to save order", e);
-        }
-    }
-}
+**Purpose**: Provide data access and persistence capabilities
+**Characteristics**:
+- Data abstraction layer
+- Transaction management
+- Connection pooling
+- Query optimization
+
+**Database Connection Flow:**
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│Application  │───▶│   Database  │───▶│   Database  │
+│Request      │    │   Connector │    │   System    │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│Query        │    │Connection   │    │Query        │
+│Formulation  │    │Establishment│    │Execution    │
+│Parameter    │    │Transaction  │    │Result       │
+│Binding      │    │Management   │    │Generation   │
+└─────────────┘    └─────────────┘    └─────────────┘
+       │                   │                   │
+       ▼                   ▼                   ▼
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│Result       │◄───│   Data      │◄───│   Data      │
+│Processing   │    │   Transfer  │    │   Retrieval │
+│Data         │    │   Error     │    │   Storage   │
+│Mapping      │    │   Handling  │    │   Update    │
+└─────────────┘    └─────────────┘    └─────────────┘
 ```
 
 ## Benefits of Explicit Connectors
@@ -320,33 +291,25 @@ public class DatabaseConnector {
 **Question:** Design a connector for a real-time chat application that supports both text messages and file transfers. Explain the design decisions.
 
 **Solution:**
-```java
-public class ChatConnector {
-    private final WebSocketConnector webSocketConnector;
-    private final FileTransferConnector fileTransferConnector;
-    private final MessageQueueConnector notificationConnector;
-    
-    public void sendTextMessage(TextMessage message) {
-        // Use WebSocket for real-time text messages
-        webSocketConnector.send(message.getRoomId(), message);
-        
-        // Store message in database for persistence
-        databaseConnector.saveMessage(message);
-        
-        // Send notification to offline users
-        notificationConnector.sendNotification(message.getRecipients());
-    }
-    
-    public void sendFile(FileMessage fileMessage) {
-        // Use dedicated file transfer connector for large files
-        String fileUrl = fileTransferConnector.uploadFile(fileMessage.getFile());
-        
-        // Send file reference via WebSocket
-        FileReferenceMessage reference = new FileReferenceMessage(
-            fileMessage.getRoomId(), fileUrl, fileMessage.getFileName());
-        webSocketConnector.send(fileMessage.getRoomId(), reference);
-    }
-}
+**Chat Application Connector Architecture:**
+```
+┌─────────────────────────────────────────────────────────────┐
+│                Chat Application Connector Design           │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│   Text          │   File          │   Notification          │
+│   Messaging     │   Transfer      │   System                │
+│   Connector     │   Connector     │                         │
+│                 │                 │                         │
+│                 │                 │                         │
+│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
+│ │WebSocket    │ │ │HTTP Upload  │ │ │Message Queue        │ │
+│ │Connector    │ │ │Connector    │ │ │Connector            │ │
+│ │Real-time    │ │ │File Storage │ │ │Push Notifications   │ │
+│ │Bidirectional│ │ │Connector    │ │ │Email Notifications  │ │
+│ │Message      │ │ │CDN          │ │ │SMS Notifications    │ │
+│ │Routing      │ │ │Connector    │ │ │                     │ │
+│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
+└─────────────────┴─────────────────┴─────────────────────────┘
 ```
 
 **Design Decisions:**
