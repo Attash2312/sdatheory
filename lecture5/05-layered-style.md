@@ -46,9 +46,9 @@ The most common layered pattern with three main tiers.
 │                 │     Tier        │                         │
 │ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
 │ │Web Browser  │ │ │Controllers  │ │ │Database Server      │ │
-│ │Mobile App   │ │ │Services     │ │ │File System          │ │
-│ │Desktop App  │ │ │Business     │ │ │External APIs        │ │
-│ │API Gateway  │ │ │Rules        │ │ │Message Queues       │ │
+│ │Mobile App   │ │ │Business     │ │ │External APIs        │ │
+│ │Desktop App  │ │ │Rules        │ │ │Message Queues       │ │
+│ │API Gateway  │ │ │            │ │ │                   │ │
 │ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
 └─────────────────┴─────────────────┴─────────────────────────┘
 ```
@@ -265,56 +265,11 @@ graph TD
 ```
 
 ### Code Example: Order Processing
-```java
-// Presentation Layer
-@RestController
-public class OrderController {
-    private final OrderService orderService;
-    
-    @PostMapping("/orders")
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request) {
-        OrderResponse response = orderService.createOrder(request);
-        return ResponseEntity.ok(response);
+```mermaid
+classDiagram
+    class OrderController {
+        -OrderService orderService
     }
-}
-
-// Business Logic Layer
-@Service
-public class OrderService {
-    private final OrderRepository orderRepository;
-    private final UserService userService;
-    private final PaymentService paymentService;
-    
-    public OrderResponse createOrder(OrderRequest request) {
-        // Business logic
-        User user = userService.getUser(request.getUserId());
-        Order order = new Order(user, request.getItems());
-        
-        // Validate order
-        validateOrder(order);
-        
-        // Process payment
-        PaymentResult payment = paymentService.processPayment(order);
-        
-        // Save order
-        Order savedOrder = orderRepository.save(order);
-        
-        return new OrderResponse(savedOrder);
-    }
-}
-
-// Data Access Layer
-@Repository
-public class OrderRepository {
-    private final JdbcTemplate jdbcTemplate;
-    
-    public Order save(Order order) {
-        // Database operations
-        String sql = "INSERT INTO orders (user_id, total, status) VALUES (?, ?, ?)";
-        jdbcTemplate.update(sql, order.getUserId(), order.getTotal(), order.getStatus());
-        return order;
-    }
-}
 ```
 
 ## Practice Questions

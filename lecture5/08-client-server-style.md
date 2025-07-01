@@ -239,41 +239,12 @@ sequenceDiagram
 ## Implementation Example: E-commerce System
 
 ### Client Implementation
-```java
-// Client-side code
-public class EcommerceClient {
-    private final HttpClient httpClient;
-    private final String serverUrl;
-    
-    public Product getProduct(String productId) {
-        String url = serverUrl + "/api/products/" + productId;
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
-            
-        HttpResponse<String> response = httpClient.send(request, 
-            HttpResponse.BodyHandlers.ofString());
-            
-        return parseProduct(response.body());
+```mermaid
+classDiagram
+    class EcommerceClient {
+        -HttpClient httpClient
+        -String serverUrl
     }
-    
-    public Order createOrder(OrderRequest orderRequest) {
-        String url = serverUrl + "/api/orders";
-        String jsonBody = serializeOrderRequest(orderRequest);
-        
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(url))
-            .header("Content-Type", "application/json")
-            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-            .build();
-            
-        HttpResponse<String> response = httpClient.send(request, 
-            HttpResponse.BodyHandlers.ofString());
-            
-        return parseOrder(response.body());
-    }
-}
 ```
 
 ### Server Implementation

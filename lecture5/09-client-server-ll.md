@@ -81,51 +81,16 @@ The client-server implementation separates the game into client-side rendering a
 ```
 
 ### Client Code Example
-```java
-public class LunarLanderClient {
-    private final WebSocketClient webSocketClient;
-    private final GameRenderer renderer;
-    private final InputHandler inputHandler;
-    private final AudioManager audioManager;
-    private GameState currentState;
-    private String playerId;
-    
-    public void connectToServer(String serverUrl) {
-        webSocketClient.connect(serverUrl, new WebSocketListener() {
-            @Override
-            public void onMessage(String message) {
-                GameState serverState = parseGameState(message);
-                updateLocalState(serverState);
-                renderer.render(currentState);
-            }
-        });
+```mermaid
+classDiagram
+    class LunarLanderClient {
+        -WebSocketClient webSocketClient
+        -GameRenderer renderer
+        -InputHandler inputHandler
+        -AudioManager audioManager
+        -GameState currentState
+        -String playerId
     }
-    
-    public void sendInput(UserInput input) {
-        InputMessage message = new InputMessage(playerId, input);
-        webSocketClient.send(serializeMessage(message));
-        
-        // Local prediction for smooth gameplay
-        predictLocalState(input);
-        renderer.render(currentState);
-    }
-    
-    private void predictLocalState(UserInput input) {
-        // Predict what the server state will be
-        GameState predictedState = currentState.copy();
-        predictedState.getLander().applyThrust(input.getThrustLevel());
-        predictedState.getLander().updatePosition(0.016); // 60 FPS
-        currentState = predictedState;
-    }
-    
-    private void updateLocalState(GameState serverState) {
-        // Reconcile with server state
-        if (serverState.getTimestamp() > currentState.getTimestamp()) {
-            currentState = serverState;
-            // Handle any corrections needed
-        }
-    }
-}
 ```
 
 ## Server-Side Implementation

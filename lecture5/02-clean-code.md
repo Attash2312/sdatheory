@@ -231,24 +231,14 @@ public class OrderProcessor {
 ### Question 1: Clean Code Principles
 **Question:** Refactor the following code to follow clean code principles. Explain your changes.
 
-```java
-public class OrderService {
-    public void p(Order o, Customer c) {
-        if (o.getStatus().equals("PENDING")) {
-            // Check if customer has enough credit
-            if (c.getCreditLimit() >= o.getTotal()) {
-                // Process the order
-                o.setStatus("PROCESSED");
-                // Send email
-                EmailService es = new EmailService();
-                es.sendEmail(c.getEmail(), "Order processed");
-            } else {
-                // Reject order
-                o.setStatus("REJECTED");
-            }
-        }
-    }
-}
+```mermaid
+flowchart TD
+    A[Order Received] --> B{Is Status PENDING?}
+    B -- No --> C[Do Nothing]
+    B -- Yes --> D{Customer Has Enough Credit?}
+    D -- No --> E[Reject Order]
+    D -- Yes --> F[Process Order]
+    F --> G[Send Email]
 ```
 
 **Solution:**

@@ -48,21 +48,14 @@ The Lunar Lander system is organized into four main layers, each with specific r
   - Visual effects
 
 **Presentation Layer Components:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│                Presentation Layer                           │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   User          │   Display       │   Audio                 │
-│   Interface     │   System        │   System                │
-│                 │                 │                         │
-│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
-│ │InputHandler │ │ │Renderer     │ │ │AudioManager         │ │
-│ │UI           │ │ │Sprite       │ │ │SoundEffects         │ │
-│ │Controls     │ │ │Manager      │ │ │Background           │ │
-│ │Menu         │ │ │Animation    │ │ │Music                │ │
-│ │HUD          │ │ │Effects      │ │ │Volume               │ │
-│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
-└─────────────────┴─────────────────┴─────────────────────────┘
+```mermaid
+classDiagram
+    class PresentationLayer {
+        +render(GameState)
+        +getInput()
+        +playSound(SoundType)
+        +showMessage(String)
+    }
 ```
 
 ### 2. Game Logic Layer

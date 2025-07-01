@@ -29,28 +29,16 @@ graph TD
 The main spacecraft class that encapsulates all lander-related data and behavior.
 
 **Class Structure:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Lander Class                             │
-├─────────────────────────────────────────────────────────────┤
-│                     Attributes                              │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ position: Vector2D                                      │ │
-│ │ velocity: Vector2D                                      │ │
-│ │ fuel: double                                            │ │
-│ │ thrust: double                                          │ │
-│ │ isLanded: boolean                                       │ │
-│ │ isCrashed: boolean                                      │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│                     Methods                                 │ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ +updatePosition(deltaTime: double): void               │ │
-│ │ +applyThrust(thrustLevel: double): void                │ │
-│ │ +consumeFuel(amount: double): boolean                  │ │
-│ │ +checkLanding(): boolean                               │ │
-│ │ +getStatus(): LanderStatus                             │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+classDiagram
+    class Lander {
+        -Vector2D position
+        -Vector2D velocity
+        -double fuel
+        -double thrust
+        -boolean isLanded
+        -boolean isCrashed
+    }
 ```
 
 ### 2. Vector2D Class
