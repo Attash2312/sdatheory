@@ -193,32 +193,19 @@ src/
 - **Clear Interfaces**: Well-defined interfaces make mocking easier
 
 **Example: Testable Design**
-```
-// Poor: Hard to test
-public class OrderProcessor {
-    private Database database = new Database();
-    private EmailService email = new EmailService();
-    
-    public void processOrder(Order order) {
-        // Direct dependencies make testing difficult
-    }
-}
 
-// Clean: Easy to test
-public class OrderProcessor {
-    private final OrderRepository orderRepository;
-    private final NotificationService notificationService;
-    
-    public OrderProcessor(OrderRepository orderRepository, 
-                         NotificationService notificationService) {
-        this.orderRepository = orderRepository;
-        this.notificationService = notificationService;
-    }
-    
-    public void processOrder(Order order) {
-        // Dependencies can be easily mocked for testing
-    }
-}
+*Poor: Hard to test:*
+- A class that creates its own dependencies internally, making it hard to substitute them for testing.
+
+*Clean: Easy to test:*
+- A class that receives its dependencies from the outside (dependency injection), making it easy to substitute them for testing.
+
+```mermaid
+flowchart TD
+    A[OrderProcessor] -->|uses| B[OrderRepository]
+    A -->|uses| C[NotificationService]
+    B -.->|can be mocked| A
+    C -.->|can be mocked| A
 ```
 
 ### 2. Test-Driven Development (TDD)
@@ -231,6 +218,8 @@ public class OrderProcessor {
 ### Question 1: Clean Code Principles
 **Question:** Refactor the following code to follow clean code principles. Explain your changes.
 
+**Solution:**
+
 ```mermaid
 flowchart TD
     A[Order Received] --> B{Is Status PENDING?}
@@ -239,48 +228,6 @@ flowchart TD
     D -- No --> E[Reject Order]
     D -- Yes --> F[Process Order]
     F --> G[Send Email]
-```
-
-**Solution:**
-```java
-public class OrderService {
-    private final EmailService emailService;
-    
-    public OrderService(EmailService emailService) {
-        this.emailService = emailService;
-    }
-    
-    public void processOrder(Order order, Customer customer) {
-        if (isOrderPending(order)) {
-            if (hasSufficientCredit(customer, order)) {
-                approveOrder(order, customer);
-            } else {
-                rejectOrder(order);
-            }
-        }
-    }
-    
-    private boolean isOrderPending(Order order) {
-        return "PENDING".equals(order.getStatus());
-    }
-    
-    private boolean hasSufficientCredit(Customer customer, Order order) {
-        return customer.getCreditLimit() >= order.getTotal();
-    }
-    
-    private void approveOrder(Order order, Customer customer) {
-        order.setStatus("PROCESSED");
-        sendOrderConfirmation(customer);
-    }
-    
-    private void rejectOrder(Order order) {
-        order.setStatus("REJECTED");
-    }
-    
-    private void sendOrderConfirmation(Customer customer) {
-        emailService.sendEmail(customer.getEmail(), "Order processed");
-    }
-}
 ```
 
 **Changes Made:**
@@ -322,39 +269,30 @@ public class OrderService {
 **Single Responsibility Principle**: Each class/module should have only one reason to change.
 
 **Example:**
-```
-// Violation: Multiple responsibilities
-public class UserManager {
-    public void createUser(User user) { /* user creation logic */ }
-    public void sendEmail(String email, String message) { /* email logic */ }
-    public void saveToDatabase(User user) { /* database logic */ }
-    public void validateUser(User user) { /* validation logic */ }
-}
 
-// Clean: Single responsibility
-public class UserService {
-    private final UserRepository userRepository;
-    private final EmailService emailService;
-    private final UserValidator userValidator;
-    
-    public void createUser(User user) {
-        userValidator.validate(user);
-        userRepository.save(user);
-        emailService.sendWelcomeEmail(user.getEmail());
+*Violation: Multiple responsibilities:*
+- A class that handles user creation, email sending, database saving, and validation all in one place, making it hard to maintain and test.
+
+*Clean: Single responsibility:*
+- Each responsibility is separated into its own class: `UserService` (user creation), `UserRepository` (database logic), `EmailService` (email logic), and `UserValidator` (validation logic).
+
+```mermaid
+classDiagram
+    class UserService {
+        +createUser(User)
     }
-}
-
-public class UserRepository {
-    public void save(User user) { /* database logic only */ }
-}
-
-public class EmailService {
-    public void sendWelcomeEmail(String email) { /* email logic only */ }
-}
-
-public class UserValidator {
-    public void validate(User user) { /* validation logic only */ }
-}
+    class UserRepository {
+        +save(User)
+    }
+    class EmailService {
+        +sendWelcomeEmail(String)
+    }
+    class UserValidator {
+        +validate(User)
+    }
+    UserService --> UserRepository
+    UserService --> EmailService
+    UserService --> UserValidator
 ```
 
 **Benefits:**

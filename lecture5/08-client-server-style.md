@@ -248,44 +248,12 @@ classDiagram
 ```
 
 ### Server Implementation
-```java
-// Server-side code
-@RestController
-@RequestMapping("/api")
-public class EcommerceServer {
-    private final ProductService productService;
-    private final OrderService orderService;
-    
-    @GetMapping("/products/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable String id) {
-        Product product = productService.getProduct(id);
-        if (product != null) {
-            return ResponseEntity.ok(product);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+```mermaid
+classDiagram
+    class EcommerceServer {
+        -ProductService productService
+        -OrderService orderService
     }
-    
-    @PostMapping("/orders")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest request) {
-        try {
-            Order order = orderService.createOrder(request);
-            return ResponseEntity.ok(order);
-        } catch (ValidationException e) {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-    
-    @GetMapping("/orders/{id}")
-    public ResponseEntity<Order> getOrder(@PathVariable String id) {
-        Order order = orderService.getOrder(id);
-        if (order != null) {
-            return ResponseEntity.ok(order);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-}
 ```
 
 ## Practice Questions

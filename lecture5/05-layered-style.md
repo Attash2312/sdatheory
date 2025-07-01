@@ -294,54 +294,22 @@ classDiagram
 **Question:** Design an interface-based communication system between the Business Logic and Data Access layers for a user management system. Show the interfaces and implementations.
 
 **Solution:**
-```java
-// Business Logic Layer Interface
-public interface UserService {
-    User createUser(UserRequest request);
-    User getUserById(String userId);
-    List<User> getAllUsers();
-    void updateUser(String userId, UserUpdateRequest request);
-    void deleteUser(String userId);
-}
-
-// Data Access Layer Interface
-public interface UserRepository {
-    User save(User user);
-    Optional<User> findById(String userId);
-    List<User> findAll();
-    User update(User user);
-    void delete(String userId);
-}
-
-// Implementation
-@Service
-public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+```mermaid
+classDiagram
+    class UserService {
+        +createUser(UserRequest): User
+        +getUserById(String): User
+        +getAllUsers(): List<User>
+        +updateUser(String, UserUpdateRequest): void
+        +deleteUser(String): void
     }
-    
-    @Override
-    public User createUser(UserRequest request) {
-        User user = new User(request.getName(), request.getEmail());
-        return userRepository.save(user);
+    class UserRepository {
+        +save(User): User
+        +findById(String): Optional<User>
+        +findAll(): List<User>
+        +update(User): User
+        +delete(String): void
     }
-    
-    // Other method implementations...
-}
-
-@Repository
-public class UserRepositoryImpl implements UserRepository {
-    private final JdbcTemplate jdbcTemplate;
-    
-    @Override
-    public User save(User user) {
-        // Database implementation
-    }
-    
-    // Other method implementations...
-}
 ```
 
 ### Question 3: Layered Architecture Design

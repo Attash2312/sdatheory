@@ -93,22 +93,14 @@ classDiagram
   - Physics constraints
 
 **Physics Engine Layer Components:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│                Physics Engine Layer                         │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Physics       │   Collision     │   Movement              │
-│   Simulation    │   Detection     │   System                │
-│                 │                 │                         │
-│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
-│ │Gravity      │ │ │Collision    │ │ │Position             │ │
-│ │Engine       │ │ │Detector     │ │ │Calculator           │ │
-│ │Force        │ │ │Boundary     │ │ │Velocity             │ │
-│ │Calculator   │ │ │Checker      │ │ │Updater              │ │
-│ │Physics      │ │ │Collision    │ │ │Acceleration         │ │
-│ │Constants    │ │ │Response     │ │ │Handler              │ │
-│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
-└─────────────────┴─────────────────┴─────────────────────────┘
+```mermaid
+classDiagram
+    class PhysicsEngineLayer {
+        +updatePhysics(PhysicsState, double): PhysicsState
+        +checkCollision(GameObject, GameObject): boolean
+        +calculateGravity(Vector2D): Vector2D
+        +applyForce(GameObject, Vector2D): void
+    }
 ```
 
 ### 4. Data Layer
@@ -120,21 +112,16 @@ classDiagram
   - Save/load functionality
 
 **Data Layer Components:**
-```
-┌─────────────────────────────────────────────────────────────┐
-│                Data Layer                                   │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Game          │   Level         │   Persistence           │
-│   Data          │   Data          │   System                │
-│                 │                 │                         │
-│ ┌─────────────┐ │ ┌─────────────┐ │ ┌─────────────────────┐ │
-│ │GameConfig   │ │ │LevelData    │ │ │SaveManager          │ │
-│ │Settings     │ │ │Terrain      │ │ │LoadManager          │ │
-│ │Parameters   │ │ │LandingZones │ │ │DataSerializer       │ │
-│ │Constants    │ │ │Obstacles    │ │ │FileManager          │ │
-│ │Preferences  │ │ │Backgrounds  │ │ │DataValidator        │ │
-│ └─────────────┘ │ └─────────────┘ │ └─────────────────────┘ │
-└─────────────────┴─────────────────┴─────────────────────────┘
+```mermaid
+classDiagram
+    class DataLayer {
+        +loadGameConfig(): GameConfig
+        +loadLevel(int): LevelData
+        +saveScore(int): void
+        +getHighScores(): List<int>
+        +saveGameState(GameState): void
+        +loadGameState(): GameState
+    }
 ```
 
 ## Implementation Example
@@ -142,171 +129,74 @@ classDiagram
 ### Layer Interfaces
 Each layer defines clear interfaces for communication with other layers.
 
-```java
-// Presentation Layer Interface
-public interface PresentationLayer {
-    void render(GameState gameState);
-    UserInput getInput();
-    void playSound(SoundType sound);
-    void showMessage(String message);
-}
+**Conceptual Explanation:**
+- Each layer in the architecture exposes an interface that defines the operations it provides to other layers.
+- The Presentation Layer handles rendering, input, and audio.
+- The Game Logic Layer manages game state, rules, and scoring.
+- The Physics Engine Layer is responsible for physics calculations and collision detection.
+- The Data Layer manages configuration, level data, scores, and game state persistence.
 
-// Game Logic Layer Interface
-public interface GameLogicLayer {
-    GameState updateGameState(GameState currentState, UserInput input);
-    boolean isGameOver(GameState state);
-    int calculateScore(GameState state);
-    Level getCurrentLevel();
-}
-
-// Physics Engine Layer Interface
-public interface PhysicsEngineLayer {
-    PhysicsState updatePhysics(PhysicsState currentState, double deltaTime);
-    boolean checkCollision(GameObject obj1, GameObject obj2);
-    Vector2D calculateGravity(Vector2D position);
-    void applyForce(GameObject object, Vector2D force);
-}
-
-// Data Layer Interface
-public interface DataLayer {
-    GameConfig loadGameConfig();
-    LevelData loadLevel(int levelNumber);
-    void saveScore(int score);
-    List<Integer> getHighScores();
-    void saveGameState(GameState state);
-    GameState loadGameState();
-}
+```mermaid
+classDiagram
+    class PresentationLayer {
+        +render(GameState)
+        +getInput()
+        +playSound(SoundType)
+        +showMessage(String)
+    }
+    class GameLogicLayer {
+        +updateGameState(GameState, UserInput): GameState
+        +isGameOver(GameState): boolean
+        +calculateScore(GameState): int
+        +getCurrentLevel(): Level
+    }
+    class PhysicsEngineLayer {
+        +updatePhysics(PhysicsState, double): PhysicsState
+        +checkCollision(GameObject, GameObject): boolean
+        +calculateGravity(Vector2D): Vector2D
+        +applyForce(GameObject, Vector2D): void
+    }
+    class DataLayer {
+        +loadGameConfig(): GameConfig
+        +loadLevel(int): LevelData
+        +saveScore(int): void
+        +getHighScores(): List<int>
+        +saveGameState(GameState): void
+        +loadGameState(): GameState
+    }
 ```
 
 ### Layer Implementation
 
 #### Presentation Layer Implementation
-```java
-public class PresentationLayerImpl implements PresentationLayer {
-    private final Renderer renderer;
-    private final InputHandler inputHandler;
-    private final AudioManager audioManager;
-    
-    @Override
-    public void render(GameState gameState) {
-        // Render lander
-        renderer.drawLander(gameState.getLander());
-        
-        // Render terrain
-        renderer.drawTerrain(gameState.getTerrain());
-        
-        // Render UI
-        renderer.drawHUD(gameState.getScore(), gameState.getFuel());
-        
-        // Render effects
-        if (gameState.isThrusting()) {
-            renderer.drawThrustEffect(gameState.getLander());
-        }
+```mermaid
+classDiagram
+    class PresentationLayerImpl {
+        -Renderer renderer
+        -InputHandler inputHandler
+        -AudioManager audioManager
     }
-    
-    @Override
-    public UserInput getInput() {
-        return inputHandler.getCurrentInput();
-    }
-    
-    @Override
-    public void playSound(SoundType sound) {
-        audioManager.playSound(sound);
-    }
-}
+    PresentationLayerImpl --|> PresentationLayer
 ```
 
 #### Game Logic Layer Implementation
-```java
-public class GameLogicLayerImpl implements GameLogicLayer {
-    private final PhysicsEngineLayer physicsEngine;
-    private final DataLayer dataLayer;
-    private Level currentLevel;
-    
-    @Override
-    public GameState updateGameState(GameState currentState, UserInput input) {
-        // Update lander based on input
-        Lander lander = updateLander(currentState.getLander(), input);
-        
-        // Update physics
-        PhysicsState physicsState = physicsEngine.updatePhysics(
-            currentState.getPhysicsState(), 0.016); // 60 FPS
-        
-        // Check for landing or crash
-        boolean isLanded = checkLanding(lander, currentState.getTerrain());
-        boolean isCrashed = checkCrash(lander, currentState.getTerrain());
-        
-        // Update score
-        int score = calculateScore(currentState, isLanded, isCrashed);
-        
-        return new GameState(lander, physicsState, score, isLanded, isCrashed);
+```mermaid
+classDiagram
+    class GameLogicLayerImpl {
+        -PhysicsEngineLayer physicsEngine
+        -DataLayer dataLayer
+        -Level currentLevel
     }
-    
-    @Override
-    public boolean isGameOver(GameState state) {
-        return state.isLanded() || state.isCrashed();
-    }
-    
-    @Override
-    public int calculateScore(GameState state) {
-        // Score calculation logic
-        int baseScore = 1000;
-        int fuelBonus = state.getLander().getFuel() * 10;
-        int landingBonus = state.isLanded() ? 500 : 0;
-        return baseScore + fuelBonus + landingBonus;
-    }
-}
+    GameLogicLayerImpl --|> GameLogicLayer
 ```
 
 #### Physics Engine Layer Implementation
-```java
-public class PhysicsEngineLayerImpl implements PhysicsEngineLayer {
-    private static final Vector2D GRAVITY = new Vector2D(0, -1.62); // Moon gravity
-    
-    @Override
-    public PhysicsState updatePhysics(PhysicsState currentState, double deltaTime) {
-        Lander lander = currentState.getLander();
-        
-        // Apply gravity
-        Vector2D gravityForce = calculateGravity(lander.getPosition());
-        applyForce(lander, gravityForce);
-        
-        // Apply thrust if active
-        if (lander.isThrusting()) {
-            Vector2D thrustForce = new Vector2D(0, lander.getThrustLevel());
-            applyForce(lander, thrustForce);
-        }
-        
-        // Update position and velocity
-        Vector2D newVelocity = lander.getVelocity().add(
-            lander.getAcceleration().multiply(deltaTime));
-        Vector2D newPosition = lander.getPosition().add(
-            newVelocity.multiply(deltaTime));
-        
-        lander.setVelocity(newVelocity);
-        lander.setPosition(newPosition);
-        
-        return new PhysicsState(lander);
+```mermaid
+classDiagram
+    class PhysicsEngineLayerImpl {
+        +GRAVITY: Vector2D
     }
-    
-    @Override
-    public boolean checkCollision(GameObject obj1, GameObject obj2) {
-        // Simple bounding box collision detection
-        return obj1.getBounds().intersects(obj2.getBounds());
-    }
-    
-    @Override
-    public Vector2D calculateGravity(Vector2D position) {
-        return GRAVITY; // Constant gravity on moon
-    }
-    
-    @Override
-    public void applyForce(GameObject object, Vector2D force) {
-        Vector2D currentAcceleration = object.getAcceleration();
-        Vector2D newAcceleration = currentAcceleration.add(force);
-        object.setAcceleration(newAcceleration);
-    }
-}
+    PhysicsEngineLayerImpl --|> PhysicsEngineLayer
 ```
 
 ## Layer Communication
@@ -404,40 +294,20 @@ sequenceDiagram
 **Question:** Design the interfaces and data structures needed for communication between the Game Logic Layer and Physics Engine Layer in the Lunar Lander system.
 
 **Solution:**
-```java
-// Data structures for layer communication
-public class PhysicsState {
-    private final Lander lander;
-    private final List<GameObject> obstacles;
-    private final Terrain terrain;
-    
-    // Constructor and getters
-}
-
-public class GameState {
-    private final Lander lander;
-    private final PhysicsState physicsState;
-    private final int score;
-    private final boolean isLanded;
-    private final boolean isCrashed;
-    
-    // Constructor and getters
-}
-
-// Interface for Physics Engine Layer
-public interface PhysicsEngineLayer {
-    PhysicsState updatePhysics(PhysicsState currentState, double deltaTime);
-    boolean checkCollision(GameObject obj1, GameObject obj2);
-    Vector2D calculateGravity(Vector2D position);
-    void applyForce(GameObject object, Vector2D force);
-}
-
-// Interface for Game Logic Layer
-public interface GameLogicLayer {
-    GameState updateGameState(GameState currentState, UserInput input);
-    boolean isGameOver(GameState state);
-    int calculateScore(GameState state);
-}
+```mermaid
+classDiagram
+    class PhysicsState {
+        -Lander lander
+        -List<GameObject> obstacles
+        -Terrain terrain
+    }
+    class GameState {
+        -Lander lander
+        -PhysicsState physicsState
+        -int score
+        -boolean isLanded
+        -boolean isCrashed
+    }
 ```
 
 ### Question 3: Layer Modification

@@ -91,80 +91,25 @@ Represents the moon's environment including gravity and surface.
 ## Implementation Example
 
 ### Lander Class Implementation
-```java
-public class Lander {
-    private Vector2D position;
-    private Vector2D velocity;
-    private double fuel;
-    private double thrust;
-    private boolean isLanded;
-    private boolean isCrashed;
-    
-    public Lander(Vector2D initialPosition, double initialFuel) {
-        this.position = initialPosition;
-        this.velocity = new Vector2D(0, 0);
-        this.fuel = initialFuel;
-        this.thrust = 0;
-        this.isLanded = false;
-        this.isCrashed = false;
+
+**Conceptual Explanation:**
+- The Lander class manages its position, velocity, fuel, thrust, and landing/crash state.
+- It updates its state based on gravity and thrust, and checks for landing or crash conditions after each update.
+- Encapsulation ensures that only the class's methods can change its internal state, supporting safe and predictable behavior.
+
+```mermaid
+classDiagram
+    class Lander {
+        -Vector2D position
+        -Vector2D velocity
+        -double fuel
+        -double thrust
+        -boolean isLanded
+        -boolean isCrashed
+        +updatePosition(deltaTime, environment)
+        +applyThrust(thrustLevel)
+        +getStatus()
     }
-    
-    public void updatePosition(double deltaTime, Environment environment) {
-        if (isLanded || isCrashed) return;
-        
-        // Apply gravity
-        Vector2D gravity = environment.getGravity();
-        velocity = velocity.add(gravity.multiply(deltaTime));
-        
-        // Apply thrust
-        if (thrust > 0 && fuel > 0) {
-            Vector2D thrustVector = new Vector2D(0, -thrust);
-            velocity = velocity.add(thrustVector.multiply(deltaTime));
-            consumeFuel(thrust * deltaTime);
-        }
-        
-        // Update position
-        position = position.add(velocity.multiply(deltaTime));
-        
-        // Check for landing or crash
-        checkLanding(environment);
-    }
-    
-    public void applyThrust(double thrustLevel) {
-        if (fuel > 0 && !isLanded && !isCrashed) {
-            this.thrust = Math.max(0, Math.min(thrustLevel, 10.0));
-        }
-    }
-    
-    private boolean consumeFuel(double amount) {
-        if (fuel >= amount) {
-            fuel -= amount;
-            return true;
-        }
-        return false;
-    }
-    
-    private void checkLanding(Environment environment) {
-        if (environment.checkCollision(position)) {
-            if (isSafeLanding(environment)) {
-                isLanded = true;
-            } else {
-                isCrashed = true;
-            }
-        }
-    }
-    
-    private boolean isSafeLanding(Environment environment) {
-        return velocity.getMagnitude() < 5.0 && 
-               environment.isInLandingZone(position);
-    }
-    
-    public LanderStatus getStatus() {
-        if (isCrashed) return LanderStatus.CRASHED;
-        if (isLanded) return LanderStatus.LANDED;
-        return LanderStatus.FLYING;
-    }
-}
 ```
 
 ## Object-Oriented Principles Applied
@@ -206,66 +151,37 @@ public class Lander {
 - **Strategy Pattern**: Different control strategies (manual, AI, automated)
 
 **Example: Display System Polymorphism**
-```java
-public interface DisplaySystem {
-    void render(Lander lander, Environment environment);
-}
 
-public class ConsoleDisplay implements DisplaySystem {
-    public void render(Lander lander, Environment environment) {
-        // Console-based rendering
-    }
-}
+**Conceptual Explanation:**
+- The DisplaySystem interface allows for different rendering strategies (console or graphical).
+- ConsoleDisplay and GraphicalDisplay both implement the DisplaySystem interface, enabling polymorphic rendering.
 
-public class GraphicalDisplay implements DisplaySystem {
-    public void render(Lander lander, Environment environment) {
-        // Graphical rendering
+```mermaid
+classDiagram
+    class DisplaySystem {
+        +render(Lander, Environment)
     }
-}
+    class ConsoleDisplay {
+        +render(Lander, Environment)
+    }
+    class GraphicalDisplay {
+        +render(Lander, Environment)
+    }
+    ConsoleDisplay --|> DisplaySystem
+    GraphicalDisplay --|> DisplaySystem
 ```
 
 ## Game Controller Class
 Coordinates the interaction between different components.
 
-```java
-public class GameController {
-    private Lander lander;
-    private Environment environment;
-    private DisplaySystem display;
-    private InputHandler input;
-    
-    public GameController() {
-        this.environment = new Environment();
-        this.lander = new Lander(new Vector2D(0, 1000), 1000);
-        this.display = new GraphicalDisplay();
-        this.input = new KeyboardInput();
+```mermaid
+classDiagram
+    class GameController {
+        -Lander lander
+        -Environment environment
+        -DisplaySystem display
+        -InputHandler input
     }
-    
-    public void gameLoop() {
-        while (!lander.getStatus().isGameOver()) {
-            // Handle input
-            handleInput();
-            
-            // Update game state
-            updateGame();
-            
-            // Render
-            display.render(lander, environment);
-            
-            // Control frame rate
-            Thread.sleep(16); // ~60 FPS
-        }
-    }
-    
-    private void handleInput() {
-        double thrust = input.getThrustLevel();
-        lander.applyThrust(thrust);
-    }
-    
-    private void updateGame() {
-        lander.updatePosition(0.016, environment); // 16ms delta time
-    }
-}
 ```
 
 ## Practice Questions
@@ -315,49 +231,25 @@ public class GameController {
 **Question:** How could polymorphism be used to implement different types of landers (e.g., basic lander, advanced lander with better fuel efficiency)?
 
 **Solution:**
-```java
-public abstract class Lander {
-    protected Vector2D position;
-    protected Vector2D velocity;
-    protected double fuel;
-    protected double thrust;
-    
-    public abstract void applyThrust(double thrustLevel);
-    public abstract double getFuelEfficiency();
-    public abstract boolean canLand();
-}
-
-public class BasicLander extends Lander {
-    public void applyThrust(double thrustLevel) {
-        // Basic thrust implementation
-        this.thrust = thrustLevel;
-        consumeFuel(thrustLevel * 1.0); // Standard fuel consumption
+```mermaid
+classDiagram
+    class Lander {
+        +applyThrust(thrustLevel)
+        +getFuelEfficiency()
+        +canLand()
     }
-    
-    public double getFuelEfficiency() {
-        return 1.0; // Standard efficiency
+    class BasicLander {
+        +applyThrust(thrustLevel)
+        +getFuelEfficiency()
+        +canLand()
     }
-    
-    public boolean canLand() {
-        return velocity.getMagnitude() < 5.0;
+    class AdvancedLander {
+        +applyThrust(thrustLevel)
+        +getFuelEfficiency()
+        +canLand()
     }
-}
-
-public class AdvancedLander extends Lander {
-    public void applyThrust(double thrustLevel) {
-        // Advanced thrust with better efficiency
-        this.thrust = thrustLevel;
-        consumeFuel(thrustLevel * 0.7); // 30% better fuel efficiency
-    }
-    
-    public double getFuelEfficiency() {
-        return 1.3; // 30% better efficiency
-    }
-    
-    public boolean canLand() {
-        return velocity.getMagnitude() < 3.0; // More precise landing
-    }
-}
+    BasicLander --|> Lander
+    AdvancedLander --|> Lander
 ```
 
 **Benefits:**

@@ -122,89 +122,15 @@ classDiagram
 ```
 
 ### Server Code Example
-```java
-@RestController
-public class LunarLanderServer {
-    private final GameStateManager gameStateManager;
-    private final PhysicsEngine physicsEngine;
-    private final PlayerManager playerManager;
-    private final ScoreManager scoreManager;
-    private final Map<String, GameSession> activeSessions = new ConcurrentHashMap<>();
-    
-    @MessageMapping("/game/input")
-    public void handleGameInput(InputMessage message) {
-        GameSession session = activeSessions.get(message.getPlayerId());
-        if (session != null) {
-            // Update game state based on input
-            GameState currentState = session.getGameState();
-            currentState.getLander().applyThrust(message.getThrustLevel());
-            
-            // Run physics simulation
-            physicsEngine.updatePhysics(currentState, 0.016);
-            
-            // Check for game events (landing, crash, etc.)
-            checkGameEvents(currentState, session);
-            
-            // Broadcast updated state to all clients
-            broadcastGameState(currentState);
-        }
+```mermaid
+classDiagram
+    class LunarLanderServer {
+        -GameStateManager gameStateManager
+        -PhysicsEngine physicsEngine
+        -PlayerManager playerManager
+        -ScoreManager scoreManager
+        -Map<String, GameSession> activeSessions
     }
-    
-    @PostMapping("/api/start-game")
-    public ResponseEntity<GameSession> startGame(@RequestBody StartGameRequest request) {
-        String playerId = request.getPlayerId();
-        int levelId = request.getLevelId();
-        
-        // Create new game session
-        GameSession session = new GameSession(playerId, levelId);
-        activeSessions.put(playerId, session);
-        
-        // Load level data
-        Level level = levelManager.getLevel(levelId);
-        session.setLevel(level);
-        
-        return ResponseEntity.ok(session);
-    }
-    
-    @PostMapping("/api/end-game")
-    public ResponseEntity<GameResult> endGame(@RequestBody EndGameRequest request) {
-        String playerId = request.getPlayerId();
-        GameSession session = activeSessions.remove(playerId);
-        
-        if (session != null) {
-            // Calculate final score
-            int score = scoreManager.calculateScore(session);
-            
-            // Save score to database
-            scoreManager.saveScore(playerId, score, session.getLevelId());
-            
-            // Update leaderboard
-            leaderboardManager.updateLeaderboard(playerId, score);
-            
-            return ResponseEntity.ok(new GameResult(score, session.isSuccess()));
-        }
-        
-        return ResponseEntity.notFound().build();
-    }
-    
-    private void checkGameEvents(GameState state, GameSession session) {
-        Lander lander = state.getLander();
-        
-        // Check for landing
-        if (physicsEngine.checkLanding(lander, session.getLevel())) {
-            session.setSuccess(true);
-            session.setEndTime(System.currentTimeMillis());
-            broadcastGameEvent("LANDING_SUCCESS", session.getPlayerId());
-        }
-        
-        // Check for crash
-        if (physicsEngine.checkCrash(lander, session.getLevel())) {
-            session.setSuccess(false);
-            session.setEndTime(System.currentTimeMillis());
-            broadcastGameEvent("CRASH", session.getPlayerId());
-        }
-    }
-}
 ```
 
 ## Multiplayer Features
@@ -349,31 +275,12 @@ sequenceDiagram
    - Heartbeat monitoring
 
 **Implementation Example:**
-```java
-public class OptimizedNetworkManager {
-    private final Queue<GameUpdate> updateQueue = new PriorityQueue<>();
-    private final Map<String, Object> lastSentState = new HashMap<>();
-    
-    public void sendGameUpdate(GameUpdate update) {
-        // Delta compression
-        GameUpdate delta = calculateDelta(lastSentState, update);
-        
-        // Priority queuing
-        updateQueue.offer(delta);
-        
-        // Compression
-        byte[] compressed = compress(delta);
-        
-        // Send with priority
-        sendWithPriority(compressed, delta.getPriority());
+```mermaid
+classDiagram
+    class OptimizedNetworkManager {
+        -Queue<GameUpdate> updateQueue
+        -Map<String, Object> lastSentState
     }
-    
-    private GameUpdate calculateDelta(Map<String, Object> lastState, 
-                                    GameUpdate newState) {
-        // Calculate only changed values
-        return newState.getDelta(lastState);
-    }
-}
 ```
 
 ### Question 3: Anti-Cheat Measures
@@ -398,48 +305,9 @@ public class OptimizedNetworkManager {
    - Machine learning for cheat detection
 
 **Implementation:**
-```java
-public class AntiCheatSystem {
-    public boolean validateGameResult(GameSession session) {
-        // Physics validation
-        if (!validatePhysics(session.getGameState())) {
-            return false;
-        }
-        
-        // Score validation
-        if (!validateScore(session.getScore(), session.getGameState())) {
-            return false;
-        }
-        
-        // Time validation
-        if (!validateGameTime(session.getDuration())) {
-            return false;
-        }
-        
-        // Behavioral analysis
-        if (detectAnomalousBehavior(session)) {
-            return false;
-        }
-        
-        return true;
+```mermaid
+classDiagram
+    class AntiCheatSystem {
+        +validateGameResult(GameSession): boolean
     }
-    
-    private boolean validatePhysics(GameState state) {
-        // Check for impossible movements
-        Lander lander = state.getLander();
-        Vector2D velocity = lander.getVelocity();
-        
-        // Check for impossible velocity
-        if (velocity.getMagnitude() > MAX_POSSIBLE_VELOCITY) {
-            return false;
-        }
-        
-        // Check for impossible positions
-        if (lander.getPosition().getY() < 0) {
-            return false;
-        }
-        
-        return true;
-    }
-}
 ``` 
